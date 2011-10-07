@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from functools import partial
-
 from common import *
 
 if MAJOR_VERSION < 3:
