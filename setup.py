@@ -17,7 +17,7 @@ setup(
     long_description=open('README.rst').read(),
     keywords=['sensors', 'hardware', 'monitoring'],
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved',
         'License :: OSI Approved :: GNU General Public License (GPL)',
