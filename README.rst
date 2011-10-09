@@ -3,7 +3,7 @@ PySensors
 =========
 
 :author: Marc 'BlackJack' Rintsch
-:date: 2011-10-07
+:date: 2011-10-09
 
 Python bindings for ``libsensors.so`` from the `lm-sensors`_ project via
 `ctypes`. Trying to support the last two libsensors APIs — versions 3 and 4.
@@ -22,7 +22,7 @@ Requirements
 ============
 
 * Python ≥2.6
-* ``libsensors.so`` from `lm-sensors`_ version 2.x or 3.x
+* ``libsensors.so`` from `lm-sensors`_ version 2.x (API 3) or 3.x (API 4)
 
 The package is pure Python, so any implementation with the `ctypes` module
 should work.  Tested so far with `CPython`_ and `PyPy`_.
@@ -50,14 +50,14 @@ The following example prints all detected sensor chips, their adapter, and the f
 
   import sensors
   
-  sensors.init(sensors.DEFAULT_CONFIG_FILENAME)
-  
-  for chip in sensors.iter_detected_chips():
-      print '%s at %s' % (chip, chip.adapter_name)
-      for feature in chip:
-          print '  %s: %.2f' % (feature.label, feature.get_value())
-  
-  sensors.cleanup()
+  sensors.init()
+  try:
+      for chip in sensors.iter_detected_chips():
+          print '%s at %s' % (chip, chip.adapter_name)
+          for feature in chip:
+              print '  %s: %.2f' % (feature.label, feature.get_value())
+  finally:
+      sensors.cleanup()
 
 Example output of the code above::
 
