@@ -40,7 +40,9 @@ cleanup.argtypes = None
 cleanup.restype = None
 
 
-def init(config_filename):
+def init(config_filename=None):
+    if config_filename is None:
+        config_filename = DEFAULT_CONFIG_FILENAME
     file_p = stdc.fopen(config_filename, 'r')
     if file_p is None:
         error_number = get_errno()

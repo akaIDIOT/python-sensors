@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 from ctypes import *
 
+import common
 import stdc
 from common import *
 
 __all__ = ['API_VERSION', 'DEFAULT_CONFIG_FILENAME', 'iter_detected_chips']
 
 API_VERSION = 3
-DEFAULT_CONFIG_FILENAME = '/etc/sensors.conf'
+common.DEFAULT_CONFIG_FILENAME = DEFAULT_CONFIG_FILENAME = '/etc/sensors.conf'
+
 
 class Feature(Structure):
     _fields_ = [
