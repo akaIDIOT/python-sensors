@@ -1,6 +1,22 @@
 # -*- coding: utf-8 -*-
+import sys
 from ctypes import *
 from ctypes.util import find_library
+
+
+def really_str(value):
+    if type(value) is bytes and sys.version_info[0] >= 3:
+        return str(value, 'utf-8')
+    else:
+        return value
+
+
+def arg(value):
+    if sys.version_info[0] >= 3:
+        return c_char_p(bytes(value, 'utf-8'))
+    else:
+        return value
+
 
 STDC_LIB = CDLL(find_library('c'), use_errno=True)
 
