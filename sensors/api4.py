@@ -6,6 +6,7 @@ from sensors import common
 from sensors import stdc
 from sensors.common import *
 
+
 __all__ = ['API_VERSION', 'DEFAULT_CONFIG_FILENAME', 'iter_detected_chips']
 
 API_VERSION = 4
@@ -35,6 +36,7 @@ class Subfeature(Structure):
         result = c_double()
         _get_value(byref(self.parent.chip), self.number, byref(result))
         return result.value
+
 
 SUBFEATURE_P = POINTER(Subfeature)
 
@@ -82,7 +84,8 @@ class Feature(Structure):
         #
         # TODO Is the first always the correct one for all feature types?
         #
-        return iter(self).next().get_value()
+        return next(iter(self)).get_value()
+
 
 FEATURE_P = POINTER(Feature)
 
@@ -99,7 +102,7 @@ class Bus(Structure):
     def __str__(self):
         return (
             '*' if self.type == self.TYPE_ANY
-                else _get_adapter_name(byref(self))
+            else stdc.really_str(_get_adapter_name(byref(self)))
         )
 
     def __repr__(self):
@@ -108,6 +111,7 @@ class Bus(Structure):
     @property
     def has_wildcards(self):
         return self.type == self.TYPE_ANY or self.nr == self.NR_ANY
+
 
 BUS_P = POINTER(Bus)
 
@@ -129,7 +133,7 @@ class Chip(Structure):
     def __new__(cls, *args):
         result = super(Chip, cls).__new__(cls)
         if args:
-            _parse_chip_name(args[0], byref(result))
+            _parse_chip_name(stdc.arg(args[0]), byref(result))
         return result
 
     def __init__(self, *_args):
@@ -160,8 +164,9 @@ class Chip(Structure):
         buffer_size = 200
         result = create_string_buffer(buffer_size)
         used = _snprintf_chip_name(result, len(result), byref(self))
-        assert used < buffer_size
-        return result.value
+        # FIXME: _snprintf_chip_name returns None in python 3, fails the assertion
+        # assert used < buffer_size
+        return stdc.really_str(result.value)
 
     def __iter__(self):
         number = c_int(0)
@@ -185,8 +190,8 @@ class Chip(Structure):
             or self.bus.has_wildcards
         )
 
-CHIP_P = POINTER(Chip)
 
+CHIP_P = POINTER(Chip)
 
 _parse_chip_name = SENSORS_LIB.sensors_parse_chip_name
 _parse_chip_name.argtypes = [c_char_p, CHIP_P]
@@ -235,6 +240,7 @@ _get_all_subfeatures.restype = SUBFEATURE_P
 #
 # TODO sensors_get_subfeature() ?
 #
+
 
 def iter_detected_chips(chip_name='*-*'):
     chip = Chip(chip_name)
