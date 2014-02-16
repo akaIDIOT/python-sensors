@@ -15,7 +15,7 @@ common.DEFAULT_CONFIG_FILENAME = DEFAULT_CONFIG_FILENAME = '/etc/sensors3.conf'
 
 class Subfeature(Structure):
     _fields_ = [
-        ('name', c_char_p),
+        ('_name', c_char_p),
         ('number', c_int),
         ('type', c_int),
         ('mapping', c_int),
@@ -32,6 +32,10 @@ class Subfeature(Structure):
             self.flags
         )
 
+    @property
+    def name(self):
+        return stdc.really_str(self._name)
+
     def get_value(self):
         result = c_double()
         _get_value(byref(self.parent.chip), self.number, byref(result))
@@ -43,7 +47,7 @@ SUBFEATURE_P = POINTER(Subfeature)
 
 class Feature(Structure):
     _fields_ = [
-        ('name', c_char_p),
+        ('_name', c_char_p),
         ('number', c_int),
         ('type', c_int),
         ('_first_subfeature', c_int),
@@ -74,11 +78,15 @@ class Feature(Structure):
             yield result
 
     @property
+    def name(self):
+        return stdc.really_str(self._name)
+
+    @property
     def label(self):
         #
         # TODO Maybe this is a memory leak!
         #
-        return _get_label(byref(self.chip), byref(self))
+        return stdc.really_str(_get_label(byref(self.chip), byref(self)))
 
     def get_value(self):
         #

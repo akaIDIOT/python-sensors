@@ -1,5 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+from __future__ import print_function
+
 import sensors
 
 
@@ -7,17 +10,17 @@ def main():
     sensors.init()
     try:
         for chip in sensors.iter_detected_chips():
-            print chip
-            print 'Adapter:', chip.adapter_name
+            print(chip)
+            print('Adapter:', chip.adapter_name)
             for feature in chip:
-                print '%s (%r): %.1f' % (
+                print('%s (%r): %.1f' % (
                     feature.name, feature.label, feature.get_value()
-                )
+                ))
                 for subfeature in feature:
-                    print '  %s: %.1f' % (
+                    print('  %s: %.1f' % (
                         subfeature.name, subfeature.get_value()
-                    )
-            print
+                    ))
+            print()
     finally:
         sensors.cleanup()
 
