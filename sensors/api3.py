@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 from ctypes import *
 
-import common
-import stdc
-from common import *
+from sensors import common
+from sensors import stdc
+from sensors.common import *
 
 __all__ = ['API_VERSION', 'DEFAULT_CONFIG_FILENAME', 'iter_detected_chips']
 
@@ -20,9 +20,9 @@ class Feature(Structure):
         ('compute_mapping', c_int),
         ('mode', c_int),
     ]
-    
+
     NO_MAPPING = -1
-    
+
     def __repr__(self):
         return '<%s number=%d name=%r mapping=%d compute_mapping=%d mode=%d' % (
             self.__class__.__name__,
@@ -32,10 +32,10 @@ class Feature(Structure):
             self.compute_mapping,
             self.mode
         )
-    
+
     def __iter__(self):
         return self.chip._iter_features(self.number)
-    
+
     @property
     def label(self):
         result_p = c_char_p()
@@ -43,7 +43,7 @@ class Feature(Structure):
         result = result_p.value
         stdc.free(result_p)
         return result
-    
+
     def get_value(self):
         result = c_double()
         _get_feature(self.chip, self.number, byref(result))
@@ -53,26 +53,26 @@ FEATURE_P = POINTER(Feature)
 
 
 class Chip(Structure):
-    # 
+    #
     # TODO Implement a `__str__()` method.
     # TODO Move common stuff into `AbstractChip` class.
-    # 
+    #
     _fields_ = [
         ('prefix', c_char_p),
         ('bus', c_int),
         ('addr', c_int),
         ('busname', c_char_p),
     ]
-    
+
     def __new__(cls, *args):
         result = super(Chip, cls).__new__(cls)
         if args:
             _parse_chip_name(args[0], byref(result))
         return result
-    
+
     def __init__(self, *_args):
         Structure.__init__(self)
-    
+
     def __repr__(self):
         return '<%s prefix=%r bus=%r addr=%r busname=%r>' % (
             (
@@ -83,21 +83,21 @@ class Chip(Structure):
                 self.busname
             )
         )
-    
+
     def __iter__(self):
         return self._iter_features()
-    
+
     @property
     def has_wildcards(self):
         return bool(_chip_name_has_wildcards(self))
-    
+
     @property
     def adapter_name(self):
         return _get_adapter_name(self.bus)
-    
+
     def match(self, other):
         return bool(_match_chip(self, other))
-    
+
     def _iter_features(self, parent=Feature.NO_MAPPING):
         nr1, nr2 = c_int(0), c_int(0)
         while True:
@@ -113,9 +113,9 @@ class Chip(Structure):
 CHIP_P = POINTER(Chip)
 
 
-# 
+#
 # TODO Implement a handler for at least `sensors_parse_error`.
-# 
+#
 
 _parse_chip_name = SENSORS_LIB.sensors_parse_chip_name
 _parse_chip_name.argtypes = [c_char_p, CHIP_P]
@@ -139,20 +139,20 @@ _get_label.argtypes = [Chip, c_int, POINTER(c_char_p)]
 _get_label.restype = c_int
 _parse_chip_name.errcheck = _error_check
 
-# 
+#
 # TODO sensors_get_ignored()
-# 
+#
 
 _get_feature = SENSORS_LIB.sensors_get_feature
 _get_feature.argtypes = [Chip, c_int, POINTER(c_double)]
 _get_feature.restype = c_int
 _parse_chip_name.errcheck = _error_check
 
-# 
+#
 # TODO sensors_set_feature()
 # TODO sensors_do_chip_sets()
 # TODO sensors_do_all_sets()    (common function)
-# 
+#
 
 _get_detected_chips = SENSORS_LIB.sensors_get_detected_chips
 _get_detected_chips.argtypes = [POINTER(c_int)]
@@ -171,8 +171,8 @@ def iter_detected_chips(chip_name='*-*'):
         if not result_p:
             break
         result = result_p.contents
-        # 
+        #
         # TODO Add ignore check.
-        # 
+        #
         if chip.match(result):
             yield result

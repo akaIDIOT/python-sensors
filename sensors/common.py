@@ -3,7 +3,7 @@ import os
 from ctypes import *
 from ctypes.util import find_library
 
-import stdc
+from sensors import stdc
 
 __all__ = [
     'SENSORS_LIB', 'VERSION', 'MAJOR_VERSION', 'SensorsError', '_error_check',
